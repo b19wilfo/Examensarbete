@@ -1,0 +1,109 @@
+// ==UserScript==
+// @name         Create data script
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Generate data for joomla from user inferface.
+// @author       William
+// @match        *://localhost/joomla1/index.php/create-article
+// @icon         https://www.google.com/s2/favicons?domain=0.1
+// @grant        none
+// @require      https://wwwlab.iit.his.se/b19wilfo/CMS/randapp.js
+// @require      https://wwwlab.iit.his.se/b19wilfo/CMS/contextfreegrammar.js
+// ==/UserScript==
+
+/** Settings */
+var times = 1000;
+var baseseed=10;
+
+console.log("Script Loaded");
+
+if (localStorage.getItem('dataGenerator_running') === null) localStorage.setItem('dataGenerator_running', false);
+if (localStorage.getItem('dataGenerator_iteration') === null) localStorage.setItem('dataGenerator_iteration', 1);
+
+var seed = baseseed + parseInt((localStorage.getItem('dataGenerator_iteration')));
+var running = localStorage.getItem('dataGenerator_running') === "false" ? false : true;
+var iteration = parseInt(localStorage.getItem('dataGenerator_iteration'));
+
+var myRand = new RandApp({
+    "seed":seed,
+    "distribution":"normal"
+    ,"persistentSeed":true
+});
+
+window.addEventListener('load', function() {
+
+    // Check if all iterations is done => running is false.
+    if(iteration > times){ running = false; localStorage.setItem('dataGenerator_running', false) }
+
+    generateUI();
+
+    if (running){
+
+        setTimeout( ()=> {
+            setPost();
+        localStorage.setItem('dataGenerator_iteration', (iteration + 1));
+        window.Joomla.submitbutton('article.save');
+                         }, 1000 )
+
+        //setPost();
+        //localStorage.setItem('dataGenerator_iteration', (iteration + 1));
+        //window.Joomla.submitbutton('article.save');
+    }
+}, false);
+
+function setPost(){
+    var title = generate_sentence(true);
+    var body = "<h3>" + generate_sentence(true) + "</h3>";
+
+    var numOfParagraph = getRandomInt(1,7)
+    for(var i = 0;i < numOfParagraph; i++){
+        var paragraph;
+        if (i != 0 && getRandomInt(1, 3) == 1) paragraph = "<h3>" + generate_sentence(true) + "</h3><p>";
+        else paragraph = "<p>";
+
+        var numOfSenteces = getRandomInt(3, 15);
+        for(var b = 0; b < numOfSenteces; b++){
+            paragraph += generate_sentence(true);
+        }
+        paragraph += "</p>";
+        body += paragraph;
+    }
+
+
+    document.getElementById("jform_title").value = title.replace('.', '');
+    document.getElementById("jform_articletext_ifr").contentWindow.document.getElementById("tinymce").innerHTML = body;
+}
+
+function generateUI(){
+    /** Adding a button the the createPage for starting and check status of script **/
+    var buttonText = "";
+
+    console.log("Button");
+    if (!running) buttonText = "Start"
+    else buttonText = "Running (" + iteration + " / " + times + ")";
+
+    var scriptHud = document.createElement ('div');
+    scriptHud.innerHTML = '<button id="scriptButton" type="button">'+ buttonText +'</button>';
+    scriptHud.setAttribute ('id', 'scriptHud');
+    document.body.appendChild(scriptHud);
+    document.getElementById("scriptHud").style.position = "fixed";
+    document.getElementById("scriptHud").style.right = "0";
+    document.getElementById("scriptHud").style.bottom = "0";
+
+    if(!running){
+        document.getElementById("scriptButton").addEventListener("click", function(){
+            if(!running){
+                console.log("Staring script..");
+                running = true;
+                localStorage.setItem('dataGenerator_running', true);
+                localStorage.setItem('dataGenerator_iteration', 1);
+                localStorage.setItem('dataGenerator_currentSeedIndex', 1)
+                location.reload();
+            }else {
+                running = false;
+                localStorage.setItem('dataGenerator_running', false);
+                location.reload();
+            }
+        });
+    }
+}
