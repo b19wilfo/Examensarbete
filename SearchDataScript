@@ -1,0 +1,106 @@
+// ==UserScript==
+// @name         Search script
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  try to take over the world!
+// @author       Wille
+// @match        *http://localhost/joomla1/index.php/search*
+// @icon         https://www.google.com/s2/favicons?domain=0.1
+// @grant        none
+// @require      https://wwwlab.iit.his.se/b19wilfo/CMS/randapp.js
+// @run-at document-start
+// ==/UserScript==
+/** Settings */
+var times = 10;
+var baseseed = 10;
+var keywords = new Array("bedroom","song","structure","pickle","nut","plane","room","dust","carpenter","camp","office","grape","fuel","cap","minister","pest","morning","scarecrow","trip","test","stream","month","summer","tub","baseball","cast","dime","arm","rake","money","hen","straw","head","cobweb","geese","cat","glove","edge","actor","daughter","space","substance","flower","self","sound","fang","fight","toe","fork","kitten","rabbit","bean","swing","oranges","mitten","fog","class","nose","pleasure","flesh","feather","river","celery","van","scale","badge","robin","sweater","gate","mountain","alarm","pollution","cake","donkey","wealth","oatmeal","cherry","joke","faucet","summer","airplane","reward","scissors","believe","rain","lettuce","zipper","club","songs","kite","kiss","kick","sea","grandmother","jam","moon","veil","juice","stomach","frame","hill","fruit","queen","boundary","pig","drug","giraffe","shape","limit","fiction","loaf","face","toothache","tramp","rate","railway","sponge","flag","hope","education","beginner","boy","creature","notebook","voice","meeting","bird","coach","team","hose","riddle","linen","wrist","grim reaper","mint","plantation","fifth","quicksand","library","family","cat","brick","value","help","recess","parent","soda","icicle","son","stove","street","wing","flock","deer","winter","sea","railway","sack","mongrel","pan","pail","show","apparel","governor","ladybug","wool","lift","weather","afterthought","achieve","meal","hook","note","step","acoustics","shop","water","grandmother","umbrella","grandfather","man","island","hope","zoo","history","day","pie","line","volleyball","beam","anger","cellar","interest","rat","owner","holiday","order","faucet","pot","swim","chin","sweater","celery","sugar","lunch","space","road","wilderness","garden","Steve Jobs","linen","pencil","feet","meal","name","sun","trail","passenger","rifle","arithmetic","toothpaste","screw","milk","volcano","hen","able","ball","rock","cabbage","hobbies","judge","friends","cellar","zebra","spiders","opinion","cub","front","grain","foot","town","surprise","bed","offer","furniture","hairspray","bead","sofa","fog","magic","spade","suit","cattle","hall","nest","station","ghost","brother","week","knot","haircut","vein","beggar","beast","bushes","galley","vegetable","year","eye","balloon","pear","underwear","book","Ipad","income","thread","cars","secretary","hill","zephyr","glue","lawyer","horn","death","brush","hole","water","approval","view","kitty","stream","smoke","sister","wish","underwear","thrill","reaction","metal","girls","grandfather","appliance","language","fold","liquid","grain","food","soup","mother","battle","flower","stranger","hydrant","soda","children","moon","carpenter","stench","owl","veil","book","hate","corn","ache","government","gate","feast","crate","lettuce","plot","wrench","caption","clover","cause","animal","force","furniture","volcano","wheel","farm","friction","crowd","pail","grade","argument","throne","number","slave","elbow","governor","route","sidewalk","stranger","kite","crayon","education","reason","carriage","servant","morning","glass","answer","tent","straw","beetle","heart","horn","father","dirt","food","playground","beef","advice","sheet","jellyfish","throat","motion","aftermath","bread","apple","cream","police","scent","texture","map","cactus","breakfast","popcorn","visitor","suit","patch","doctor","afternoon","sink","lumber","bath","lamp","dad","sail","great uncle","cats","arch","effect","kettle","cart","measure","cave","kiss","cemetery","spark","volleyball","game","story","ocean","plant","good-bye","oven","writer","insurance","yard","seed","range","circle","sock","horse","frog","game","table","digestion","trick","oatmeal","title","meat","bun","unit","swing","cable","dust","snake","giants","cannon","sofa","health","notebook","monkey","system","cracker","arithmetic","feeling","font","holiday","basket","dress","cent","stocking","goldfish","can","girl","brain","oil","tank","key","rainstorm","instrument","apple","home","jar","bike","invention","development","calculator","heat","string","action","channel","jeans","string","spark","frame","rainstorm","lizard","hearing","territory","dog","coil","jail","zinc","stone","level","girl","scene","soap","butter","spy","bomb","light","guide","mom","toes","doll","selection","cow","vase","earthquake","hot","elbow","car","pet","rain","fear","stew","lightning bolt","mailbox","receipt","bucket","vest","dock","park","bubble","geese","wood","niece","finger","goose","cattle","turkey","seat","fuel","lunchroom","stove","seashore","lake","hobbies","hook","pear","birthday","shoe","spoon","temper","boot","banana","vacation","tiger","knife","summer","snow","winter","throne","squirrel","crown","bat","fowl","ray","song","form","treatment","owl","goldfish","farmer","friction","knowledge","toothbrush","stage","goose","feather","desk","lace","stretch","crook","heat","son","giraffe","flavor","mother","clam","earthquake","airport","downtown","sense","plastic","aunt","van","chicken","operation","friend","organization","flowers","mice","music","basketball","cloth","creator","voyage","branch","hair","rat","orange","pancake","umbrella","laborer","heart","partner","scarf","sun","wren","list","fly","calendar","cup","marble","twig","home","coast","grade","eggnog","dinner","skate","field","activity","feet","seashore","boy","bait","kite","locket","seed","insect","maid","mountain","scale","tree","ornament","cemetery","guitar","rake","crow","frog","spot","rose","support","health","honey","society","crib","army","light","sort","north","poison","border","street","quiet","tray","drum","pinkie","month","vest","quilt","science","recess","cast","vegetable","vase","use","feast","picture","rail","honey","lock","pocket","hat","reading","pen","ghost","toad","uncle","memory","star","lip","fang","grass","voyage","gun","visitor","fan","knee","idea","goose","stealth yacht","cave","mask","sleet","number","snail","observation","ocean","fireman","mother");
+
+if (localStorage.getItem('search_running') === null) localStorage.setItem('search_running', false);
+if (localStorage.getItem('search_iteration') === null) localStorage.setItem('search_iteration', 0);
+
+var running = localStorage.getItem('search_running') === "false" ? false : true;
+var iteration = parseInt(localStorage.getItem('search_iteration'));
+var seed = baseseed + parseInt((localStorage.getItem('search_iteration')));
+var myRand = new RandApp({
+    "seed":seed,
+    "distribution":"normal"
+    ,"persistentSeed":true
+});
+
+window.addEventListener('load', function() {
+    var searchInput = document.getElementById("search-searchword");
+    if(iteration > times){
+        running = false;
+        localStorage.setItem('search_running', false);
+        console.log(JSON.parse(localStorage.getItem('search_result')))
+        var arr = new Array();
+        JSON.parse(localStorage.getItem('search_result')).forEach(x => {
+            arr.push(x['time']);
+        });
+        console.log(arr);
+    }
+    generateUI();
+
+    // Check if all iterations is done => running is false.
+
+    if(running){
+
+        if(searchInput.value != "") {
+            var time = new Date().getTime();
+            var arr = JSON.parse(localStorage.getItem('search_result'));
+            if(arr == null) arr = [];
+
+            arr.push({time: time - parseInt(localStorage.getItem("search-lasttime")),
+                     keyword: searchInput.value,
+                     matches: parseInt(document.getElementsByClassName("badge-info")[0].innerHTML)});
+
+            localStorage.setItem('search_result', JSON.stringify(arr));
+        }
+
+
+        searchInput.value = keywords[getRandomInt(0, keywords.length - 1)];
+
+
+        localStorage.setItem('search_iteration', (iteration + 1));
+        localStorage.setItem("search-lasttime", new Date().getTime())
+        document.getElementById("searchForm").submit();
+    }
+
+
+}, false);
+
+function generateUI(){
+    /** Adding a button the the createPage for starting and check status of script **/
+    var buttonText = "";
+    if(!running) buttonText = "Start"
+    else buttonText = "Running (" + iteration + " / " + times + ")";
+
+    var scriptHud = document.createElement ('div');
+    scriptHud.innerHTML = '<button id="scriptButton" type="button">'+ buttonText +'</button>';
+    scriptHud.setAttribute ('id', 'scriptHud');
+    document.body.appendChild(scriptHud);
+    document.getElementById("scriptHud").style.position = "fixed";
+    document.getElementById("scriptHud").style.right = "0";
+    document.getElementById("scriptHud").style.bottom = "0";
+
+    if(!running){
+        document.getElementById("scriptButton").addEventListener("click", function(){
+            running = true;
+            localStorage.setItem('search_running', true);
+            localStorage.setItem('search_result', null);
+            localStorage.setItem('search_iteration', 0);
+            window.location.replace("http://localhost/joomla1/index.php/search");
+        });
+    }else {
+        document.getElementById("scriptButton").addEventListener("click", function(){
+            running = false;
+            localStorage.setItem('search_running', false);
+            location.reload();
+        });
+    }
+}
+
+function getRandomInt(min, max) {
+    var m = max - min;
+    return Math.floor(m * myRand.rand()) + min;
+}
