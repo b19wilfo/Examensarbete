@@ -5,11 +5,38 @@ $servername = "localhost";
 $password = "";
 $log_time = "";
 
-$redis = new Redis();
-$redis->connect('localhost', 6379);
+try{
+    $pdo = new PDO('mysql:host=' . $mysql_host . '; dbname=' . $database_name, $database_user, $database_password);
+
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $sql  = "SELECT * FROM produkter";
+    $stmt->execute();
+
+    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+
+    $artiklar = $stmt->fetchAll();
+    $i = 0;
+      foreach ($artiklar as $artikel) {
+        echo "<h2 onclick='ShowText(\"content\",".$i.")'>".$artikel['heading']."</h2><hr>";
+        echo "<div class='content'>";
+        echo "<p>".$artikel['forfattare']."</p>";
+        echo "<p>".$artikel['brodtext']."</p>";
+        echo "<p>".$artikel['publiserad']."</p><hr>";
+        echo "</div>";
+        $i++;
+      }
+  }
+  catch(PDOException $e){
+    echo "Connection failed: " . $e->getMessage();
+}
 
 
-$key = 'PRODUKTER';
+//$redis = new Redis();
+//$redis->connect('localhost', 6379);
+
+
+/*$key = 'PRODUKTER';
 
 if (!$redis->get($key)) {
     $source = 'MySQL Server';
@@ -39,5 +66,5 @@ if (!$redis->get($key)) {
 }
 
 echo $source . ': <br>';
-print_r($produkter);
+print_r($produkter);*/
 ?>
