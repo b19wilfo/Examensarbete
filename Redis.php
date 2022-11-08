@@ -1,16 +1,16 @@
 <?php
 $dbname = "testing";
 $username = "root";
-$servername = "localhost";
+$servername = "127.0.0.1";
 $password = "";
 $log_time = "";
 
 try{
-    $pdo = new PDO('mysql:host=' . $mysql_host . '; dbname=' . $database_name, $database_user, $database_password);
+    $conn = new PDO("mysql:host=$servername;port=3306; dbname=testing", $username, $password);
 
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $sql  = "SELECT * FROM produkter";
+    $stmt = $conn->prepare('Select * from artiklar');
     $stmt->execute();
 
     $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
